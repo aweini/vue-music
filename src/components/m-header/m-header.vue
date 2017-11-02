@@ -9,13 +9,13 @@
     </div>
 </template>
 <script>
-
 export default{
+
 }
 </script>
-<style lang="scss" scoped>
-@import '../../common/style/variable.scss';
-@import '../../common/style/mixin.scss';
+<style lang="scss">
+@import 'src/common/style/variable';
+@import 'src/common/style/mixin';
 .m-header{
     position: relative;
     height: 44px;
