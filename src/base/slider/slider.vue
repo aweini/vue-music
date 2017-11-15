@@ -5,7 +5,7 @@
       </slot>
     </div>
     <div class="dots">
-      <span class="dot"></span>
+      <span class="dot" :class="{active: currentPageIndex === index}" v-for="(item, index) in dots"></span>
     </div>
   </div>
 </template>
@@ -30,12 +30,14 @@
     },
     data () {
       return {
-
+        currentPageIndex: 0,
+        dots: []
       }
     },
     mounted () {
       setTimeout(() => {
         this._setSliderWidth();
+        this._initDots();
         this._initSlider();
       }, 20)
     },
@@ -59,7 +61,13 @@
           child.style.width = sliderWidth + 'px';
           width += sliderWidth;
         }
+        width += sliderWidth * 2;
         this.$refs.sliderGroup.style.width = width + 'px';
+      },
+      _initDots () {
+        this.dots = new Array(this.children.length);
+        console.log('dots:' + this.dots.length);
+        // 另外两个添加的， 在这之后添加
       },
       _initSlider () {
         this.slider = new BScroll(this.$refs.slider, {
@@ -77,6 +85,7 @@
   }
 </script>
 <style lang="scss">
+  @import 'src/common/style/variable';
   .slider{
     min-height: 1px;
     .slider-group{
@@ -95,6 +104,28 @@
             width: 100%;
         }
       }  
+    }
+    .dots{
+      position: absolute;
+      right: 0;
+      left: 0;
+      bottom: 12px;
+      transform: translateZ(1px);
+      text-align: center;
+      font-size: 0;
+      .dot{
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin: 0 4px;
+        background: $color-text-l;
+        &.active{
+          width: 20px;
+          border-radius: 5px;
+          background: $color-text-ll;
+        }
+      }
     }
   }    
 </style>
