@@ -39,7 +39,26 @@
         this._setSliderWidth();
         this._initDots();
         this._initSlider();
+        if (this.autoPlay) {
+          this._play()
+        }
       }, 20)
+      window.addEventListener('resize', () => {
+        if (!this.slider || !this.slider.enabled) {
+          return
+        }
+        clearTimeout(this.resizeTimer);
+        this.resizeTimer = setTimeout(() => {
+          if (this.slider.isInTransition) {
+            this._onScrollEnd()
+          } else {
+            if (this.autoPlay) {
+              this._play()
+            }
+          }
+          this.refresh()
+        }, 60)
+      })
     },
     activated () {
 
@@ -80,7 +99,39 @@
             speed: 400
           }
         })
+
+        this.slider.on('scrollEnd', this._onScrollEnd);
+
+        this.slider.on('touchend', () => {
+          if (this.autoPlay) {
+            this._play();
+          }
+        })
+
+        this.slider.on('beforeScrollStart', () => {
+          if (this.autoPlay) {
+            clearTimeout(this.timer)
+          }
+        })
+      },
+      _onScrollEnd () {
+        let pageIndex = this.slider.getCurrentPage().pageX;
+        if (this.loop) {
+          pageIndex -= 1
+        }
+        this.currentPageIndex = pageIndex;
+        if (this.autoPlay) {
+          this._play();
+        }
+      },
+      _play () {
+        let pageIndex = this.slider.getCurrentPage().pageX + 1;
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+          this.slider.goToPage(pageIndex, 0, 400)
+        }, this.interval)
       }
+
     }
   }
 </script>
