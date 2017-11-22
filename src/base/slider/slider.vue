@@ -69,6 +69,9 @@
     beforeDestroy () {
 
     },
+    destroyed () {
+      clearTimeout(this.timer)
+    },
     methods: {
       refresh () {
         if (this.slider) {

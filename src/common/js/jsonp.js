@@ -11,6 +11,7 @@ export default function jsonp (url, data, options) {
       }
     })
   })
+  // 因为执行jsonp函数后 要得到promise，所以return出去，否则可以直接在这里用promise.then()
   return promise;
 }
 
