@@ -13,10 +13,10 @@
       <h1 class="list-title">热门歌单推荐</h1>
       <ul>
         <li v-for="item in discList" class="item">
-          <img :src="item.imgurl" class="icon" />
+          <img v-lazy="item.imgurl" class="icon" />
           <div class="text">
             <h2 class="name">{{item.creator.name}}</h2>
-            <p class="desc">{{item.dissname}}</p>
+            <p class="desc" v-html="item.dissname"></p>
           </div>
         </li>
       </ul>
