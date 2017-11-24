@@ -21,7 +21,8 @@
 <style lang="scss">
 .tabs{
     width:100%;
-    height:40px;
+    height:44px;
+    line-height:44px;
     display: flex;
     .tab-item{
         flex: 1;
