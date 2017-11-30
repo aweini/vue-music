@@ -26,6 +26,7 @@ const app = express()
 
 const apiRoutes = express.Router()
 // 即使这样 如果后台不想让数据被其他平台访问，可以用参数验签的方式，这种签名很难被获取到
+// jsonp 的 通过服务器可以用get获取
 apiRoutes.get('/getDiscList', function (req, res) {
   var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
   axios.get(url, {

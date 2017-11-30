@@ -6,6 +6,7 @@ export const commonParams = {
   format: 'jsonp'
 }
 
+// jsonpCallback=jp0/jp1......  jsonpCallback是和后台约定的传过去的参数 返回的参数在jpx函数里 如jp0({....})
 export const options = {
   param: 'jsonpCallback',
   prefix: 'jp'

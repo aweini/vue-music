@@ -80,16 +80,16 @@
         //     this.$emit('beforeScroll')
         //   })
         // }
-      }
+      },
     //   disable () {
     //     this.scroll && this.scroll.disable();
     //   },
     //   enable () {
     //     this.scroll && this.scroll.enable();
     //   },
-    //   refresh () {
-    //     this.scroll && this.scroll.refresh();
-    //   },
+      refresh () {
+        this.scroll && this.scroll.refresh();
+      }
     //   scrollTo () {
     //     this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
     //   },
@@ -101,7 +101,7 @@
       data () {
         setTimeout(() => {
           // scroll出现的时候 有可能歌单列表还没有出来，等歌单数据出来歌单数据改变时 刷新scroll
-          // this.refresh();
+          this.refresh();
         }, this.refreshDelay)
       }
     }
