@@ -1,5 +1,5 @@
 <template>
-  <div class="singer">
+  <div class="singer" v-if="singers.length">
     <listview :data="singers"></listview>
   </div>
 </template>
@@ -91,7 +91,7 @@
 </script>
 <style lang="scss">
 .singer{
-  position: fixed;
+  position: absolute;
   top: 88px;
   bottom: 0px;
   width: 100%;

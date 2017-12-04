@@ -25,7 +25,7 @@
       data: {
         type: Array,
         default: null
-      }
+      },
     //   pullup: {
     //     type: Boolean,
     //     default: false
@@ -34,10 +34,10 @@
     //     type: Boolean,
     //     default: false
     //   },
-    //   refreshDelay: {
-    //     type: Number,
-    //     default: 20
-    //   }
+      refreshDelay: {
+        type: Number,
+        default: 20
+      }
     //   direction: {
     //     type: String,
     //     default: DIRECTION_V
