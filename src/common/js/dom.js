@@ -11,3 +11,37 @@ export function addClass (el, className) {
   newClass.push(className);
   el.className = newClass.join(' ');
 }
+
+export function getData (el, name, value) {
+  const prefix = 'data-';
+  if (typeof value !== 'undefined') {
+    return el.setAttribute(prefix + name, value);
+  } else {
+    return el.getAttribute(prefix + name);
+  }
+}
+
+let elementStyle = document.createElement('div').style;
+let vendor = (() => {
+  let transformNames = {
+    webkit: 'webkitTransform',
+    Moz: 'MozTransform',
+    standard: 'transform'
+  }
+  for (let key in transformNames) {
+    if (elementStyle[transformNames[key]] !== undefined) {
+      return key;
+    }
+  }
+  return false;
+})()
+
+export function prefixStyle (style) {
+  if (vendor === false) {
+    return false;
+  }
+  if (vendor === 'standard') {
+    return style;
+  }
+  return vendor + style.charAt(0).toUpperCase() + style.substr(1);
+}

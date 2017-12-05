@@ -4,14 +4,15 @@
       <li v-for="group in data" class="list-group">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li v-for="item in group.items" class="list-group-item">
+          <li v-for="item in group.items" class="list-group-item" ref="listGroup">
             <img v-lazy="item.avatar" class="avatar"/>
             <span class="name">{{item.name}}</span>
           </li>
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut">
+    <div class="list-shortcut" @touchstart.stop.prevent="onShortcutTouchStart"
+    @touchmove.stop.prevent="onShortcutTouchMove" @touchend.stop>
       <ul>
         <li v-for="(item, index) in shortcutList"
           :data-index="index" 
@@ -31,7 +32,8 @@
 </template>
 <script>
   import scroll from '../scroll/scroll';
-  import loading from '../loading/loading'
+  import loading from '../loading/loading';
+  import { getData } from '@common/js/dom';
   export default{
     props: {
       data: {
@@ -39,10 +41,17 @@
         default: []
       }
     },
+    components: {
+      scroll,
+      loading
+    },
     data () {
       return {
         currentIndex: 0
       }
+    },
+    created () {
+      this.listHeight = [];
     },
     computed: {
       shortcutList () {
@@ -60,9 +69,44 @@
     mounted () {
       console.log(this.$refs.scroll);
     },
-    components: {
-      scroll,
-      loading
+    methods: {
+      onShortcutTouchStart (e) {
+        let anchorIndex = getData(e.target, 'index');
+        this._scrollTo(anchorIndex);
+      },
+      onShortcutTouchMove (e) {
+        let anchorIndex = getData(e.target, 'index');
+        this._scrollTo(anchorIndex);
+      },
+      _scrollTo (index) {
+        if (!index) {
+          return;
+        }
+        if (index < 0) {
+          index = 0;
+        } else if (index > this.listHeight.length - 2) {
+          index = this.listHeight.length - 2;
+        }
+        this.$refs.scroll.scrollToElement(this.$refs.listGroup[index], 0);
+      },
+      _calculateHeight () {
+        this.listHeight = [];
+        const list = this.$ref.listGroup;
+        let height = 0;
+        this.listHeight.push(height);
+        for (let i = 0; i < list.length; i++) {
+          let item = list[i];
+          height += item.clientHeight;
+          this.listHeight.push(height);
+        }
+      }
+    },
+    watch: {
+      data () {
+        setTimeout(() => {
+          this._calculateHeight()
+        })
+      }
     }
   }
 </script>
