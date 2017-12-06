@@ -1,10 +1,17 @@
 <template>
-  <scroll class="listview" ref="scroll">
+  <!--这里@绑定的事件不能含－中划线 :绑定的属性可以用驼峰式也可以中划线隔开，但自组建接收参数时都是驼峰-->
+  <scroll class="listview" 
+          ref="scroll"
+          :data="data"
+          :listen-scroll = "listenScroll"
+          @scroll = "scroll"
+          :probe-type = "probeType"
+          >
     <ul>
-      <li v-for="group in data" class="list-group">
+      <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li v-for="item in group.items" class="list-group-item" ref="listGroup">
+          <li v-for="item in group.items" class="list-group-item">
             <img v-lazy="item.avatar" class="avatar"/>
             <span class="name">{{item.name}}</span>
           </li>
@@ -17,7 +24,7 @@
         <li v-for="(item, index) in shortcutList"
           :data-index="index" 
           class="item" 
-          :class="{'current': currentIndex===index}">
+          :class="{'current': currentIndex == index}">
           {{item}}
         </li>
       </ul>
@@ -34,6 +41,16 @@
   import scroll from '../scroll/scroll';
   import loading from '../loading/loading';
   import { getData } from '@common/js/dom';
+
+  // 联动滚动  1 设置data-index 标记序号， 主界面序号和快捷键序号一一对应
+  // 滑动主界面 用每个模块高度相加 计算出每个模块底部到 容器顶部的距离，滑动时监测鼠标落在哪个模块上就可取到模块的序号
+  // 这样快捷键中对应的序号高亮
+  // 点击快捷键，用e.target获取点击元素的data-index获取序号，主界面滚动到序号对应的模块
+  // 滑动快捷键 计算滑动delta/每个快捷键高度 计算出划过的快捷键个数，知道划到哪个快捷键上了，就得到了序号
+
+  // const TITLE_HEIGHT = 30;
+  const ANCHOR_HEIGHT = 18;
+
   export default{
     props: {
       data: {
@@ -47,11 +64,15 @@
     },
     data () {
       return {
-        currentIndex: 0
+        currentIndex: 0,
+        scrollY: -1
       }
     },
     created () {
       this.listHeight = [];
+      this.touch = {};
+      this.listenScroll = true;
+      this.probeType = 3;
     },
     computed: {
       shortcutList () {
@@ -67,15 +88,23 @@
       }
     },
     mounted () {
-      console.log(this.$refs.scroll);
+      // console.log(this.$refs.scroll);
     },
     methods: {
       onShortcutTouchStart (e) {
         let anchorIndex = getData(e.target, 'index');
+        // this.currentIndex = anchorIndex;
         this._scrollTo(anchorIndex);
+        let firstTouch = e.touches[0];
+        this.touch.y1 = firstTouch.pageY;
+        this.touch.anchorIndex = anchorIndex;
       },
       onShortcutTouchMove (e) {
-        let anchorIndex = getData(e.target, 'index');
+        let moveTouch = e.touches[0];
+        this.touch.y2 = moveTouch.pageY;
+        let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0;
+        let anchorIndex = parseInt(this.touch.anchorIndex) + delta;
+        // this.currentIndex = anchorIndex;
         this._scrollTo(anchorIndex);
       },
       _scrollTo (index) {
@@ -88,24 +117,49 @@
           index = this.listHeight.length - 2;
         }
         this.$refs.scroll.scrollToElement(this.$refs.listGroup[index], 0);
+        this.currentIndex = index;
       },
       _calculateHeight () {
         this.listHeight = [];
-        const list = this.$ref.listGroup;
+        const list = this.$refs.listGroup;
         let height = 0;
+        // listHeight的个数比 总模块个数多1
         this.listHeight.push(height);
         for (let i = 0; i < list.length; i++) {
           let item = list[i];
+          // height = item.offsetTop + item.clientHeight; // 也行
           height += item.clientHeight;
           this.listHeight.push(height);
         }
+        console.log(this.listHeight)
+      },
+      scroll (pos) {
+        this.scrollY = pos.y;
       }
     },
     watch: {
+      // 如果在父组件里用v-if数据有了 再渲染子组件， 子组件获取到的data会是完整的一直不变，这里也就检测不到了
+      // 如果父组件不用v-if数据有了 而是直接传递data，一开始是空数组后来有数据再填充数组，子组建检测到data数据变化刷新组建
       data () {
         setTimeout(() => {
           this._calculateHeight()
-        })
+        }, 20)
+      },
+      scrollY (newY) {
+        const listHeight = this.listHeight;
+        if (newY > 0) {
+          this.currentIndex = 0;
+          return;
+        }
+        for (let i = 0; i < listHeight.length - 1; i++) {
+          let height1 = listHeight[i];
+          let height2 = listHeight[i + 1];
+          if (-newY >= height1 && -newY < height2) {
+            this.currentIndex = i;
+            return;
+          }
+        }
+        this.currentIndex = listHeight.length - 2;
       }
     }
   }

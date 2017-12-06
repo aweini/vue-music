@@ -18,10 +18,10 @@
         type: Boolean,
         default: false
       },
-    //   listenScroll: {
-    //     type: Boolean,
-    //     default: false
-    //   },
+      listenScroll: {
+        type: Boolean,
+        default: false
+      },
       data: {
         type: Array,
         default: null
@@ -63,11 +63,11 @@
           click: this.click,
           eventPassthrough: 'horizontal'
         })
-        // if (this.listenScroll) {
-        //   this.scroll.on('scroll', (pos) => {
-        //     this.$emit('scroll', pos);
-        //   })
-        // }
+        if (this.listenScroll) {
+          this.scroll.on('scroll', (pos) => {
+            this.$emit('scroll', pos);
+          })
+        }
         // if (this.pullup) {
         //   this.scroll.on('scrollEnd', () => {
         //     if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
@@ -93,11 +93,8 @@
     //   scrollTo () {
     //     this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
     //   },
-    //   scrollToElement () {
-    //     this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
-    //   }
       scrollToElement () {
-        this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
+        this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
       }
     },
     watch: {

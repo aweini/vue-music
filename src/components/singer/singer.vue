@@ -1,5 +1,5 @@
 <template>
-  <div class="singer" v-if="singers.length">
+  <div class="singer">
     <listview :data="singers"></listview>
   </div>
 </template>
@@ -33,7 +33,7 @@
           if (ERR_OK === res.code) {
             this.singers = res.data.list;
             this.singers = this._normalizeSinger(this.singers)
-            console.log(this.singers);
+            // console.log(this.singers);
           }
         })
       },
@@ -64,8 +64,8 @@
           }))
         })
 
-        console.log('map.......')
-        console.log(map);
+        // console.log('map.......')
+        // console.log(map);
 
         let hot = [];
         let ret = [];
@@ -82,8 +82,8 @@
         })
 
         let normalizeList = hot.concat(ret);
-        console.log('normalizeList........')
-        console.log(normalizeList);
+       // console.log('normalizeList........')
+        // console.log(normalizeList);
         return normalizeList;
       }
     }
