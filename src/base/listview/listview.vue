@@ -48,7 +48,7 @@
   // 点击快捷键，用e.target获取点击元素的data-index获取序号，主界面滚动到序号对应的模块
   // 滑动快捷键 计算滑动delta/每个快捷键高度 计算出划过的快捷键个数，知道划到哪个快捷键上了，就得到了序号
 
-  // const TITLE_HEIGHT = 30;
+  const TITLE_HEIGHT = 30;
   const ANCHOR_HEIGHT = 18;
 
   export default{
@@ -65,7 +65,8 @@
     data () {
       return {
         currentIndex: 0,
-        scrollY: -1
+        scrollY: -1,
+        diff: -1
       }
     },
     created () {
@@ -108,6 +109,7 @@
         this._scrollTo(anchorIndex);
       },
       _scrollTo (index) {
+        // 这里 index 是 字符串
         if (!index) {
           return;
         }
@@ -156,10 +158,20 @@
           let height2 = listHeight[i + 1];
           if (-newY >= height1 && -newY < height2) {
             this.currentIndex = i;
+            this.diff = height2 + newY;
             return;
           }
         }
         this.currentIndex = listHeight.length - 2;
+      },
+      diff (newVal) {
+        let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+        if (this.fixedTop === fixedTop) {
+          return;
+        }
+        this.fixedTop = fixedTop;
+        console.log('fixedTop:' + fixedTop);
+        this.$refs.fixed.style.transform = `translate3d(0, ${fixedTop}px, 0)`
       }
     }
   }
