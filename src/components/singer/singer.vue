@@ -1,6 +1,7 @@
 <template>
   <div class="singer">
-    <listview :data="singers"></listview>
+    <listview @select="selectSinger" :data="singers"></listview>
+    <router-view></router-view>
   </div>
 </template>
 <script>
@@ -8,6 +9,7 @@
   import { ERR_OK } from '@api/config';
   import listview from '@base/listview/listview';
   import Singer from '@common/js/singer';
+  import {mapMutations} from 'vuex';
 
   const HOT_NAME = '热门';
   const HOT_SINGER_LEN = 10;
@@ -85,13 +87,22 @@
        // console.log('normalizeList........')
         // console.log(normalizeList);
         return normalizeList;
-      }
+      },
+      selectSinger (singer) {
+        this.$router.push({
+          path: `/singer/${singer.id}`
+        })
+        this.setSinger(singer);
+      },
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      })
     }
   }
 </script>
 <style lang="scss">
 .singer{
-  position: absolute;
+  position: fixed;
   top: 88px;
   bottom: 0px;
   width: 100%;
