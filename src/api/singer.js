@@ -16,3 +16,17 @@ export function getSingers () {
   })
   return jsonp(url, data, options)
 }
+export function getSingerDetail (singerId) {
+  let url = 'https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_track_cp.fcg';
+  let data = Object.assign({}, commonParams, {
+    hostUin: 0,
+    paltform: 'yqq',
+    needNewCode: 0,
+    order: 'listen',
+    begin: 0,
+    num: 80,
+    songstatus: 1,
+    singermid: singerId
+  })
+  return jsonp(url, data, options);
+}

@@ -6,9 +6,9 @@
     }
 }
 //不换行
-@mixin no-wrap(){
-    text-overflow: ellipsis;
+@mixin nowrap(){
     overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 //扩展点击区域

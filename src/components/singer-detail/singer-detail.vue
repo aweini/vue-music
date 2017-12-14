@@ -4,8 +4,10 @@
   </transition>
 </template>
 <script>
+  import {getSingerDetail} from '@api/singer'
   import {mapGetters} from 'vuex'
   import musicList from '@components/music-list/music-list'
+  import {createSong} from '@common/js/song'
   export default {
     props: {
     },
@@ -28,9 +30,35 @@
         'singer'
       ])
     },
-    create () {
-      // let singerId = this.params.id;
+    created () {
+      this._getSingerDetail();
+    },
+    methods: {
+      _getSingerDetail () {
+        if (!this.singer.id) {
+          this.$router.push('/singer');
+          return;
+        }
+        getSingerDetail(this.singer.id).then((res) => {
+          console.log(res);
+          this.songs = res.data.list;
+          console.log(['unnormalizeSongs', this.songs]);
+          this.songs = this._normalizeSongs(this.songs);
+          console.log(['normalizeSongs', this.songs]);
+        })
+      },
+      _normalizeSongs (list) {
+        let ret = [];
+        list.forEach((item) => {
+          let {musicData} = item;
+          if (musicData.songid && musicData.alnummid) {
+            ret.push(createSong(musicData))
+          }
+        })
+        return ret;
+      }
     }
+
   }
 </script>
 <style lang="scss">
