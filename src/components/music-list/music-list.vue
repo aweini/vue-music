@@ -21,6 +21,10 @@
 <script>
   import songList from '@base/song-list/song-list';
   import scroll from '@base/scroll/scroll';
+  import {prefixStyle} from '@common/js/dom';
+  const RESERVED_HEIGHT = 40;
+  const transform = prefixStyle('transform');
+  const backdrop = prefixStyle('backdrop');
   export default{
     components: {
       songList,
@@ -52,6 +56,7 @@
     },
     methods: {
       back () {
+        this.$router.back();
       },
       scroll (pos) {
         this.scrollY = pos.y;
@@ -62,12 +67,42 @@
       this.probeType = 3;
     },
     mounted () {
-      let bgImageHeight = this.$refs.bgImage.clientHeight;
-      this.$refs.list.$el.style.top = `${bgImageHeight}px`;
+      this.bgImageHeight = this.$refs.bgImage.clientHeight;
+      this.$refs.list.$el.style.top = `${this.bgImageHeight}px`;
+      this.maxTranslateY = RESERVED_HEIGHT - this.bgImageHeight;
+      // 这两种ref时不一样的 this.$refs.bgImage 一个dom元素，this.$refs.list一个vue组件 它的$el属性代表它对应的dom对象
+      console.log(this.$refs.bgImage);
+      console.log(this.$refs.list)
     },
     watch: {
       scrollY (newVal) {
-        this.$refs.layer.style.webkitTransform = `translate3d(0, ${newVal}px, 0)`
+        console.log(newVal)
+        let translateY = Math.max(this.maxTranslateY, newVal)
+        this.$refs.layer.style[transform] = `translate3d(0, ${translateY}px, 0)`;
+        let zIndex = 0;
+        let scale = 1;
+        let blur = 0;
+        let percent = Math.abs(newVal / this.bgImageHeight);
+        if (newVal > 0) {
+          // 向下滑
+          scale = 1 + percent;
+        } else {
+          blur = Math.min(20, percent * 20);
+        }
+
+        if (this.maxTranslateY > newVal) {
+          // 向上滑过了
+          zIndex = 10;
+          this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`;
+          this.$refs.bgImage.style.paddingTop = '0';
+        } else {
+          this.$refs.bgImage.style.height = 0;
+          this.$refs.bgImage.style.paddingTop = '70%';
+        }
+        this.$refs.bgImage.style.zIndex = zIndex;
+        console.log(['scale', scale])
+        this.$refs.bgImage.style[transform] = `scale(${scale})`;
+        this.$refs.bgImage.style[backdrop] = `blur(${blur}px)`;
       }
     }
   }
