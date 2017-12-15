@@ -6,19 +6,25 @@
     <h1 class="title">
     {{title}}
     </h1>
-    <div class="bg-image" :style="bgStyle">
+    <div class="bg-image" :style="bgStyle" ref="bgImage">
     </div>
-    <div>
-      <song-list :songs="songs">
-      </song-list>
-    </div>
+    <div class="bg-layer" ref="layer"></div>
+    <scroll class="list" :data="songs" ref="list" :listen-scroll="listenScroll"
+    :probe-type="probeType" @scroll="scroll">
+      <div class="song-list-wrapper">
+        <song-list :songs="songs">
+        </song-list>
+      </div>
+    </scroll>
   </div>
 </template>
 <script>
-  import songList from '@base/song-list/song-list'
+  import songList from '@base/song-list/song-list';
+  import scroll from '@base/scroll/scroll';
   export default{
     components: {
-      songList
+      songList,
+      scroll
     },
     props: {
       title: {
@@ -34,6 +40,11 @@
         default: []
       }
     },
+    data () {
+      return {
+        scrollY: 0
+      }
+    },
     computed: {
       bgStyle () {
         return `background-image:url(${this.bgImage})`
@@ -41,11 +52,23 @@
     },
     methods: {
       back () {
+      },
+      scroll (pos) {
+        this.scrollY = pos.y;
       }
     },
     created () {
-      console.log('music-list songs');
-      console.log(this.songs);
+      this.listenScroll = true;
+      this.probeType = 3;
+    },
+    mounted () {
+      let bgImageHeight = this.$refs.bgImage.clientHeight;
+      this.$refs.list.$el.style.top = `${bgImageHeight}px`;
+    },
+    watch: {
+      scrollY (newVal) {
+        this.$refs.layer.style.webkitTransform = `translate3d(0, ${newVal}px, 0)`
+      }
     }
   }
 </script>
@@ -88,6 +111,21 @@
         padding-top: 70%;
         transform-origin: top;
         background-size: cover;
+    }
+    .bg-layer{
+      position: relative;
+      height: 100%;
+      background: $color-background;
+    }
+    .song-list-wrapper{
+      padding: 20px 30px;
+    }
+    .list{
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      // overflow: hidden;
     }
     
 }
