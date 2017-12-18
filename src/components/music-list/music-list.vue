@@ -12,7 +12,7 @@
     <scroll class="list" :data="songs" ref="list" :listen-scroll="listenScroll"
     :probe-type="probeType" @scroll="scroll">
       <div class="song-list-wrapper">
-        <song-list :songs="songs">
+        <song-list :songs="songs" @select="selectItem">
         </song-list>
       </div>
     </scroll>
@@ -22,6 +22,7 @@
   import songList from '@base/song-list/song-list';
   import scroll from '@base/scroll/scroll';
   import {prefixStyle} from '@common/js/dom';
+  import {mapActions} from 'vuex';
   const RESERVED_HEIGHT = 40;
   const transform = prefixStyle('transform');
   const backdrop = prefixStyle('backdrop');
@@ -60,7 +61,16 @@
       },
       scroll (pos) {
         this.scrollY = pos.y;
-      }
+      },
+      selectItem (item, index) {
+        this.selectPlay({
+          list: this.songs,
+          index
+        })
+      },
+      ...mapActions([
+        'selectPlay'
+      ])
     },
     created () {
       this.listenScroll = true;
