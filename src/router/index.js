@@ -5,6 +5,7 @@ import Singer from '@components/singer/singer';
 import Rank from '@components/rank/rank';
 import Search from '@components/search/search';
 import SingerDetail from '@components/singer-detail/singer-detail';
+import Test from '@components/test/test';
 
 Vue.use(Router);
 
@@ -35,6 +36,10 @@ export default new Router({
     {
       path: '/search',
       component: Search
+    },
+    {
+      path: '/test',
+      component: Test
     }
   ]
 })
