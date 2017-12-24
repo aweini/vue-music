@@ -7,4 +7,4 @@ export const mode = state => state.mode;
 export const currenIndex = state => state.currenIndex;
 export const currentSong = state => {
   return state.playList[state.currenIndex] || {};
-}
+};

@@ -1,5 +1,5 @@
 <template>
-  <div class="player">
+  <div class="player" v-show="fullScreen">
     <div class="background">
       <!--div设置了opacity为透明或filter模糊都会影像到内部内容,设置它的index为－1让她不和其他在同一个层上就不会影像其他-->
       <img class="background-image" src="./player.jpg" />
@@ -8,7 +8,7 @@
       <h1 class="title">温暖</h1>
       <h2 class="subtitle">许巍</h2>
       <div class="back">
-        <i class="icon-back"></i>
+        <i class="icon-back" @click="closePlayer"></i>
       </div>
     </div>
     
@@ -22,12 +22,49 @@
       </div>
     </div>
     <div class="bottom">
-    
+      <div class="operators">
+        <div class="operator-item i-left">
+          <i class="icon-loop" @click="changeMode"></i>
+        </div>
+        <div class="operator-item i-left">
+          <i class="icon-prev"></i>
+        </div>
+        <div class="operator-item i-center">
+          <i class="icon-pause"></i>
+        </div>
+        <div class="operator-item i-right">
+          <i class="icon-next"></i>
+        </div>
+        <div class="operator-item i-right">
+          <i class="icon-not-favorite"></i>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
-    
+// 不写export 组件也可使用
+import {mapGetters, mapMutations} from 'vuex';
+import {playerMixin} from '@common/js/mixin';
+export default {
+  mixins: [playerMixin],
+  data () {
+    return {}
+  },
+  computed: {
+    ...mapGetters([
+      'fullScreen'
+    ])
+  },
+  methods: {
+    closePlayer () {
+      this.setFullScreen(false);
+    },
+    ...mapMutations({
+      setFullScreen: 'SET_FULL_SCREEN'
+    })
+  }
+}
 </script>
 <style lang="scss">
 @import 'src/common/style/variable';
@@ -120,8 +157,27 @@
     .bottom{
         position: absolute;
         width: 100%;
-        left: 10%;
         bottom: 50px;
+        .operators{
+          display: flex;
+          text-align: center;
+          align-items: center;
+          .operator-item{
+            flex: 1;
+            font-size: 30px;
+            color: $color-theme;
+          }
+          .i-left{
+            text-align: right;
+          }
+          .i-center{
+            font-size: 40px;
+            padding: 0 20px;
+          }
+          .i-right{
+            text-align: left;
+          }
+        }
     }
 @keyframes rotate{
     0% {
