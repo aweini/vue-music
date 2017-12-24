@@ -24,7 +24,7 @@
     <div class="bottom">
       <div class="operators">
         <div class="operator-item i-left">
-          <i class="icon-loop" @click="changeMode"></i>
+          <i :class="iconMode" @click="changeMode"></i>
         </div>
         <div class="operator-item i-left">
           <i class="icon-prev"></i>
