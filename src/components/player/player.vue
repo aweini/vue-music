@@ -2,11 +2,11 @@
   <div class="player" v-show="fullScreen">
     <div class="background">
       <!--div设置了opacity为透明或filter模糊都会影像到内部内容,设置它的index为－1让她不和其他在同一个层上就不会影像其他-->
-      <img class="background-image" src="./player.jpg" />
+      <img class="background-image" :src="currentSong.image" />
     </div>
     <div class="top">
-      <h1 class="title">温暖</h1>
-      <h2 class="subtitle">许巍</h2>
+      <h1 class="title">{{currentSong.name}}</h1>
+      <h2 class="subtitle">{{currentSong.singer}}</h2>
       <div class="back">
         <i class="icon-back" @click="closePlayer"></i>
       </div>
@@ -16,7 +16,7 @@
       <div class="middle-l">
         <div class="cd-wrapper">
           <div class="cd">
-            <img class="image play" src="./player.jpg"/>
+            <img class="image play" :src="currentSong.image"/>
           </div>
         </div>
       </div>
@@ -27,19 +27,20 @@
           <i :class="iconMode" @click="changeMode"></i>
         </div>
         <div class="operator-item i-left">
-          <i class="icon-prev"></i>
+          <i class="icon-prev" @click="prev"></i>
         </div>
         <div class="operator-item i-center">
-          <i class="icon-pause"></i>
+          <i :class="playIcon" @click="togglePlaying"></i>
         </div>
         <div class="operator-item i-right">
-          <i class="icon-next"></i>
+          <i class="icon-next" @click="next"></i>
         </div>
         <div class="operator-item i-right">
           <i class="icon-not-favorite"></i>
         </div>
       </div>
     </div>
+    <audio ref="audio"></audio>
   </div>
 </template>
 <script>
@@ -53,16 +54,46 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'fullScreen'
-    ])
+      'fullScreen',
+      'currentSong',
+      'playing',
+      'currentIndex'
+    ]),
+    playIcon () {
+      let icon = '';
+      icon = this.playing ? 'icon-pause' : 'icon-play';
+      return icon;
+    }
   },
   methods: {
     closePlayer () {
       this.setFullScreen(false);
     },
+    togglePlaying () {
+      this.setPlayingState(!this.playing);
+    },
+    prev () {
+      console.log(['this.currentIndex', this.currentIndex]);
+      this.setCurrentIndex(this.currentIndex--);
+    },
+    next () {
+      this.setCurrentIndex(this.currentIndex++);
+    },
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN'
+      setFullScreen: 'SET_FULL_SCREEN',
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
     })
+  },
+  watch: {
+    currentSong (newSong) {
+      this.$refs.audio.src = newSong.url;
+      this.$refs.audio.play();
+    },
+    playing (newPlaying) {
+      let audio = this.$refs.audio;
+      newPlaying ? audio.play() : audio.pause();
+    }
   }
 }
 </script>
