@@ -22,6 +22,9 @@
       </div>
     </div>
     <div class="bottom">
+      <div class="progress-bar-wrapper">
+        {{format(currentTime)}}<progress-bar :percent="percent" @changeProgress="changeProgress"></progress-bar>{{format(durantionTime)}}
+      </div>
       <div class="operators">
         <div class="operator-item i-left">
           <i :class="iconMode" @click="changeMode"></i>
@@ -40,19 +43,28 @@
         </div>
       </div>
     </div>
-    <audio ref="audio"></audio>
+    <audio ref="audio" @timeupdate="updateTime"></audio>
   </div>
 </template>
 <script>
 // 不写export 组件也可使用
 import {mapGetters, mapMutations} from 'vuex';
 import {playerMixin} from '@common/js/mixin';
+import progressBar from '@base/progress-bar/progress-bar';
 export default {
   mixins: [playerMixin],
   data () {
-    return {}
+    return {
+      currentTime: 0
+    }
+  },
+  components: {
+    progressBar
   },
   computed: {
+    durantionTime () {
+      return this.currentSong.duration;
+    },
     ...mapGetters([
       'fullScreen',
       'currentSong',
@@ -63,6 +75,9 @@ export default {
       let icon = '';
       icon = this.playing ? 'icon-pause' : 'icon-play';
       return icon;
+    },
+    percent () {
+      return this.currentTime / this.durantionTime;
     }
   },
   methods: {
@@ -78,6 +93,25 @@ export default {
     },
     next () {
       this.setCurrentIndex(this.currentIndex++);
+    },
+    updateTime (e) {
+      this.currentTime = e.target.currentTime;
+    },
+    format (time) {
+      time = time | 0;
+      let m = time / 60 | 0;
+      let s = time % 60;
+      s = s < 10 ? `0${s}` : s;
+      time = `${m}:${s}`;
+      return time;
+    },
+    changeProgress (percent) {
+      // this.percent = percent; 不能改变计算属性
+      console.log(['changeProgress', percent]);
+      this.currentTime = this.durantionTime * percent;
+      this.$refs.audio.currentTime = this.currentTime;
+      console.log(['currentTime', this.currentTime]);
+      console.log(['this.percent', this.percent]);
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
@@ -189,6 +223,10 @@ export default {
         position: absolute;
         width: 100%;
         bottom: 50px;
+        .progress-bar-wrapper{
+            width: 80%;
+            margin: 10px auto;
+        }
         .operators{
           display: flex;
           text-align: center;
