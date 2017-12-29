@@ -1,9 +1,12 @@
 <template>
   <div class="progress-bar" ref="progressBar">
-    <div class="bar">
+    <div class="bar" @click="progressClick">
         <div class="progress" ref="progress"></div>
     </div>
-    <div class="progress-btn" ref="progressBtn" @touchstart="progressTouchstart" @touchmove="progressTouchmove" @touchend="progressTouchend">
+    <div class="progress-btn" ref="progressBtn" 
+        @touchstart.prevent="progressTouchstart" 
+        @touchmove.prevent="progressTouchmove" 
+        @touchend="progressTouchend">
     </div>
   </div>
 </template>
@@ -28,24 +31,38 @@
         this.touch = e.touches[0];
         this.touch.startX = this.touch.clientX;
         this.touch.left = this.$refs.progress.clientWidth;
+        this.touch.initiated = true;
       },
       progressTouchmove (e) {
+        if (!this.touch.initiated) {
+          return;
+        }
         this.touch.deltaX = e.touches[0].clientX - this.touch.startX;
-        let progressWidth = this.touch.left + this.touch.deltaX;
+        let progressWidth = Math.min(this.$refs.progressBar.clientWidth - progressBtnWidth, Math.max(0, this.touch.left + this.touch.deltaX));
+        console.log(['progressWidth', progressWidth]);
         this._offset(progressWidth);
         // 不能改变props传过来的percent
         let percent = this._getPercent();
-        console.log(['touchmove', percent]);
-        this.$emit('changeProgress', percent);
+        // console.log(['touchmove', percent]);
+        this.$emit('progressChanging', percent);
       },
       progressTouchend () {
+        this.touch.initiated = false;
         // 设置移动距离
-        let progressWidth = this.touch.left + this.touch.deltaX;
-        this._offset(progressWidth);
+        // let progressWidth = this.touch.left + this.touch.deltaX;
+        // this._offset(progressWidth);
         // 计算percent
         let percent = this._getPercent();
-        console.log(['touchend', percent]);
-        this.$emit('changeProgress', percent);
+        // console.log(['touchend', percent]);
+        this.$emit('progressChanging', percent);
+        this.$emit('progressChange', percent);
+      },
+      progressClick (e) {
+        let rect = this.$refs.progressBar.getBoundingClientRect();
+        let progressWidth = e.clientX - rect.left;
+        this._offset(progressWidth);
+        let percent = this._getPercent();
+        this.$emit('progressChange', percent);
       },
       _offset (offsetWidth) {
         this.$refs.progressBtn.style[transform] = `translate(${offsetWidth}px, 0)`;
@@ -55,7 +72,7 @@
         let progressWidth = this.$refs.progress.clientWidth;
         let realProgressBarWidth = this.$refs.progressBar.clientWidth - progressBtnWidth;
         let percent = progressWidth / realProgressBarWidth;
-        console.log(['_getPercent', percent]);
+        // console.log(['_getPercent', percent]);
         return percent;
       }
     },
@@ -65,8 +82,8 @@
         // console.log(['newPercent', newPercent]);
         let width = this.$refs.progressBar.clientWidth - progressBtnWidth;
         let progressWidth = width * newPercent;
-        console.log(['newPercent', newPercent])
-        console.log(['progressWidth', progressWidth]);
+        // console.log(['newPercent', newPercent])
+        // console.log(['progressWidth', progressWidth]);
         this._offset(progressWidth);
       }
     }
