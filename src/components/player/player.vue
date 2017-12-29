@@ -116,8 +116,19 @@ export default {
     }
   },
   methods: {
-    enter () {
-
+    enter (el, done) {
+      const {x, y, scale} = this._getPosAndScale();
+      let animation = {
+        0: {
+          transform: `translate3d(${x}px, ${y}px, 0), scale(${scale})`
+        },
+        60: {
+          transform: 'translate3d(0, 0, 0) scale(1.1)'
+        }
+        100: {
+          transform: 'translate3d(0, 0, 0) scale(1)'
+        }
+      }
     },
     afterEnter () {
 
