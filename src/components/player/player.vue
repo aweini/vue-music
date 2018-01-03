@@ -21,10 +21,17 @@
     
                 <div class="middle">
                     <div class="middle-l">
-                        <div class="cd-wrapper">
+                        <div class="cd-wrapper" ref="cdWrapper">
                             <div class="cd">
                                 <img class="image" :src="currentSong.image" :class="playClass"/>
                             </div>
+                        </div>
+                    </div>
+                    <div class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+                        <div v-if="currentLyric">
+                            <p v-for="item in currentLyric.lines">
+                            {{item.txt}}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -83,12 +90,19 @@ import {mapGetters, mapMutations} from 'vuex';
 import {playerMixin} from '@common/js/mixin';
 import progressBar from '@base/progress-bar/progress-bar';
 import {playMode} from '@common/js/config';
+import animations from 'create-keyframe-animation';
+import {prefixStyle} from '@common/js/dom';
+import Lyric from 'lyric-parser';
+
+const transform = prefixStyle('transform');
+
 export default {
   mixins: [playerMixin],
   data () {
     return {
       currentTime: 0,
-      playClass: 'play'
+      playClass: 'play',
+      currentLyric: null
     }
   },
   components: {
@@ -124,20 +138,38 @@ export default {
         },
         60: {
           transform: 'translate3d(0, 0, 0) scale(1.1)'
-        }
+        },
         100: {
           transform: 'translate3d(0, 0, 0) scale(1)'
         }
       }
+      animations.registerAnimation({
+        name: 'move',
+        animation,
+        presets: {
+          duration: 400,
+          easing: 'linear'
+        }
+      })
+      animations.runAnimation(this.$refs.cdWrapper, 'move', done);
     },
     afterEnter () {
-
+      animations.unregisterAnimation('move');
+      this.$refs.cdWrapper.style.animation = '';
     },
-    leave () {
-
+    leave (el, done) {
+      this.$refs.cdWrapper.style.transition = 'all 0.4s';
+      let {x, y, scale} = this._getPosAndScale();
+      this.$refs.cdWrapper.style[transform] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+      let timer = setTimeout(done, 400);
+      this.$refs.cdWrapper.addEventListener('transitionend', function () {
+        clearTimeout(timer);
+        done();
+      })
     },
     afterLeave () {
-
+      this.$refs.cdWrapper.style.transition = '';
+      this.$refs.cdWrapper.style[transform] = '';
     },
     openPlayer () {
       this.setFullScreen(true);
@@ -214,6 +246,13 @@ export default {
         scale
       }
     },
+    _getLyric () {
+      this.currentSong.getLyric().then((lyric) => {
+        this.currentLyric = new Lyric(lyric);
+        console.log(['lyric', this.currentLyric]);
+        this.currentLyric.seek(this.currentTime * 1000);
+      })
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
@@ -224,6 +263,7 @@ export default {
     currentSong (newSong) {
       this.$refs.audio.src = newSong.url;
       this.$refs.audio.play();
+      this._getLyric();
     },
     playing (newPlaying) {
       let audio = this.$refs.audio;
@@ -292,7 +332,9 @@ export default {
             top: 80px;
             bottom: 170px;
             width: 100%;
+            white-space: nowrap;
             .middle-l{
+                display: inline-block;
                 width: 100%;
                 height: 100%;
                 .cd-wrapper{
@@ -320,6 +362,10 @@ export default {
                         }
                     }
                 }
+            }
+            .middle-r{
+              display: inline-block;
+              transform: translate3d(-100%, 0, 0);
             }
         }
         .bottom{
