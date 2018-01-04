@@ -27,13 +27,16 @@
                             </div>
                         </div>
                     </div>
-                    <div class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
-                        <div v-if="currentLyric">
-                            <p v-for="item in currentLyric.lines">
-                            {{item.txt}}
-                            </p>
+                    <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+                         <!--在v-if=currentLyric外面加一层lyric-wrapper 是保证scroll的第一个子元素存在-->
+                        <div class="lyric-wrapper">
+                            <div v-if="currentLyric">
+                                <p class="lyric-txt" v-for="(item, index) in currentLyric.lines" :class="{'current-txt':index===currentLineNum}">
+                                    {{item.txt}}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    </scroll>
                 </div>
                 <div class="bottom">
                     <div class="progress-wrapper">
@@ -93,6 +96,7 @@ import {playMode} from '@common/js/config';
 import animations from 'create-keyframe-animation';
 import {prefixStyle} from '@common/js/dom';
 import Lyric from 'lyric-parser';
+import scroll from '@base/scroll/scroll';
 
 const transform = prefixStyle('transform');
 
@@ -102,11 +106,13 @@ export default {
     return {
       currentTime: 0,
       playClass: 'play',
-      currentLyric: null
+      currentLyric: null,
+      currentLineNum: 0
     }
   },
   components: {
-    progressBar
+    progressBar,
+    scroll
   },
   computed: {
     durantionTime () {
@@ -251,6 +257,8 @@ export default {
         this.currentLyric = new Lyric(lyric);
         console.log(['lyric', this.currentLyric]);
         this.currentLyric.seek(this.currentTime * 1000);
+      }).catch(() => {
+        this.currentLyric = null;
       })
     },
     ...mapMutations({
@@ -364,8 +372,26 @@ export default {
                 }
             }
             .middle-r{
+              position: absolute;
+              left: 0;
+              top: 0;
               display: inline-block;
-              transform: translate3d(-100%, 0, 0);
+              width: 100%;
+              height: 100%;
+              //transform: translate3d(-100%, 0, 0);
+              overflow: hidden;
+              .lyric-wrapper{
+                width: 100%;
+                text-align: center;
+                .lyric-txt{
+                    line-height: 32px;
+                    color: $color-text-l;
+                    font-size: $font-size-medium;
+                    &.current-txt{
+                        color: $color-text;
+                    }
+                }
+              }
             }
         }
         .bottom{
