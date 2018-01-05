@@ -19,19 +19,25 @@
                     </div>
                 </div>
     
-                <div class="middle">
-                    <div class="middle-l">
+                <div class="middle" ref="middleWrapper" @touchstart="middleTouchStart"
+                                    @touchmove="middleTouchMove"
+                                    @touchend="middleTouchEnd"
+                >
+                    <div class="middle-l" ref="cd">
                         <div class="cd-wrapper" ref="cdWrapper">
-                            <div class="cd">
-                                <img class="image" :src="currentSong.image" :class="playClass"/>
+                            <div class="cd" ref="imageWrapper">
+                                <img ref="image" class="image" :src="currentSong.image" :class="playClass"/>
                             </div>
+                        </div>
+                        <div class="playingLyric">
+                        {{playingLyric}}
                         </div>
                     </div>
                     <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
                          <!--在v-if=currentLyric外面加一层lyric-wrapper 是保证scroll的第一个子元素存在-->
                         <div class="lyric-wrapper">
                             <div v-if="currentLyric">
-                                <p class="lyric-txt" v-for="(item, index) in currentLyric.lines" :class="{'current-txt':index===currentLineNum}">
+                                <p ref="lyricLine" class="lyric-txt" v-for="(item, index) in currentLyric.lines" :class="{'current-txt':index===currentLineNum}">
                                     {{item.txt}}
                                 </p>
                             </div>
@@ -39,6 +45,10 @@
                     </scroll>
                 </div>
                 <div class="bottom">
+                    <div class="dot-wrapper">
+                        <span :class="{'active': currentShow==='cd'}"></span>
+                        <span :class="{'active': currentShow==='lyric'}"></span>
+                    </div>
                     <div class="progress-wrapper">
                         <span class="time">{{format(currentTime)}}</span>
                         <div class="progress-bar-wrapper">
@@ -99,6 +109,7 @@ import Lyric from 'lyric-parser';
 import scroll from '@base/scroll/scroll';
 
 const transform = prefixStyle('transform');
+// const trasitionDuration = prefixStyle('transitionDuration');
 
 export default {
   mixins: [playerMixin],
@@ -107,7 +118,10 @@ export default {
       currentTime: 0,
       playClass: 'play',
       currentLyric: null,
-      currentLineNum: 0
+      currentLineNum: 0,
+      playingLyric: '',
+      currentShow: 'cd',
+      touch: {}
     }
   },
   components: {
@@ -254,12 +268,76 @@ export default {
     },
     _getLyric () {
       this.currentSong.getLyric().then((lyric) => {
-        this.currentLyric = new Lyric(lyric);
+        this.currentLyric = new Lyric(lyric, this._handleLyric);
         console.log(['lyric', this.currentLyric]);
         this.currentLyric.seek(this.currentTime * 1000);
       }).catch(() => {
         this.currentLyric = null;
       })
+    },
+    _handleLyric ({lineNum, txt}) {
+      this.currentLineNum = lineNum;
+      if (lineNum > 5) {
+        let p = this.$refs.lyricLine[lineNum - 5];
+        this.$refs.lyricList.scrollToElement(p, 1000)
+      }
+      this.playingLyric = txt;
+    },
+    _syncWrapperTransform (wrapper, inner) {
+      let imageWrapper = this.$refs[wrapper];
+      let image = this.$refs[inner];
+      let iTransfrom = getComputedStyle(image)[transform];
+      let wTransform = getComputedStyle(imageWrapper)[transform];
+      imageWrapper.style[transform] = wTransform === 'none' ? iTransfrom : wTransform.concat(' ', iTransfrom);
+    },
+    middleTouchStart (e) {
+      this.touch = e.touches[0];
+      this.touch.startX = this.touch.clientX;
+      this.touch.deltaX = 0;
+    },
+    middleTouchMove (e) {
+      this.touch.deltaX = e.touches[0].clientX - this.touch.startX;
+      let middleWidth = this.$refs.middleWrapper.offsetWidth;
+      // this.$refs.lyricList.$el.style[trasitionDuration] = '';
+      if (this.currentShow === 'cd') {
+        if (this.touch.deltaX < 0) {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(${this.touch.deltaX}px, 0, 0)`;
+          let opacity = 1 - (Math.abs(this.touch.deltaX) / middleWidth);
+          this.$refs.cd.style.filter = `opacity(${opacity})`;
+        }
+      } else if (this.currentShow === 'lyric') {
+        if (this.touch.deltaX > 0) {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(${this.touch.deltaX - middleWidth}px, 0, 0)`;
+          let opacity = Math.abs(this.touch.deltaX) / middleWidth;
+          this.$refs.cd.style.filter = `opacity(${opacity})`;
+        }
+      }
+    },
+    middleTouchEnd () {
+      let middleWidth = this.$refs.middleWrapper.offsetWidth;
+      let limitWidth = middleWidth / 3;
+      // this.$refs.lyricList.$el.style[trasitionDuration] = '300ms';
+      if (this.currentShow === 'cd') {
+        if (this.touch.deltaX < 0 && this.touch.deltaX > -limitWidth) {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(0, 0, 0)`;
+          this.$refs.cd.style.filter = 'opacity(1)';
+          this.currentShow = 'cd';
+        } else if (this.touch.deltaX < 0 && this.touch.deltaX < -limitWidth) {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(${-middleWidth}px, 0, 0)`;
+          this.$refs.cd.style.filter = 'opacity(0)';
+          this.currentShow = 'lyric';
+        }
+      } else if (this.currentShow === 'lyric') {
+        if (this.touch.deltaX > 0 && this.touch.deltaX < limitWidth) {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(${-middleWidth}px, 0, 0)`;
+          this.$refs.cd.style.filter = 'opacity(0)';
+          this.currentShow = 'lyric';
+        } else if (this.touch.deltaX > 0 && this.touch.deltaX > limitWidth) {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(0, 0, 0)`;
+          this.$refs.cd.style.filter = 'opacity(1)';
+          this.currentShow = 'cd';
+        }
+      }
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
@@ -277,6 +355,9 @@ export default {
       let audio = this.$refs.audio;
       newPlaying ? audio.play() : audio.pause();
       this.playClass = newPlaying ? 'play' : '';
+      if (!newPlaying) {
+        this._syncWrapperTransform('imageWrapper', 'image')
+      }
     }
   }
 }
@@ -370,16 +451,23 @@ export default {
                         }
                     }
                 }
+                .playingLyric{
+                  position: absolute;
+                  left: 10%;
+                  width: 80%;
+                  margin: 30px auto 0;
+                  text-align: center;
+                  color: $color-text-l;
+                  font-size: $font-size-medium; 
+                }
             }
             .middle-r{
-              position: absolute;
-              left: 0;
-              top: 0;
               display: inline-block;
               width: 100%;
               height: 100%;
-              //transform: translate3d(-100%, 0, 0);
+             // transform: translate3d(100%, 0, 0);
               overflow: hidden;
+              transition: all 0.4s;
               .lyric-wrapper{
                 width: 100%;
                 text-align: center;
@@ -398,6 +486,22 @@ export default {
             position: absolute;
             width: 100%;
             bottom: 50px;
+            .dot-wrapper{
+                text-align: center;
+                span{
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: $color-text-l;
+                    margin:0 5px;
+                    &.active{
+                        width: 20px;
+                        border-radius: 4px;
+                        background: $color-text-ll;
+                    }
+                }
+            }
             .progress-wrapper{
                 width: 80%;
                 margin: 10px auto;

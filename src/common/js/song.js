@@ -1,6 +1,10 @@
-import {getLyric} from '@api/song';
+import {getLyric, getVkey} from '@api/song';
+import {getUid} from './uid';
 import {ERR_OK} from '@api/config';
-import {Base64} from 'js-base64'
+import {Base64} from 'js-base64';
+
+let urlMap = {};
+
 export default class Song {
   constructor ({id, mid, singer, name, album, duration, image, url}) {
     this.id = id;
@@ -10,7 +14,12 @@ export default class Song {
     this.album = album;
     this.duration = duration;
     this.image = image;
-    this.url = url;
+    this.filename = `C400${this.mid}.m4a`;
+    if (urlMap[this.id]) {
+      this.url = urlMap[this.id];
+    } else {
+      this._getUrl();
+    }
   }
   getLyric () {
     if (this.lyric) {
@@ -26,6 +35,18 @@ export default class Song {
         }
       })
     });
+  }
+  _getUrl () {
+    if (this.url) {
+      return 0;
+    }
+    getVkey(this.mid, this.filename).then((res) => {
+      if (res.code === ERR_OK) {
+        const vkey = res.data.items[0].vkey;
+        this.url = `http://dl.stream.qqmusic.qq.com/${this.filename}?vkey=${vkey}&guid=${getUid()}&uin=0&fromtag=66`;
+        urlMap[this.id] = this.url;
+      }
+    })
   }
 }
 
