@@ -83,12 +83,13 @@
                     <img :src="currentSong.image" />
                 </div>
                 <div class="song-desc">
+                    <h1 class="song-name">{{currentSong.name}}</h1>
+                    <span class="singer-name">{{currentSong.singer}}</span>
+                </div>
+                <div class="control">
                     <i class="icon-playlist"></i>
                 </div>
-                <div>
-                    <i class="icon-playlist"></i>
-                </div>
-                <div>
+                <div class="control">
                     <i class="icon-playlist"></i>
                 </div>
             </div>
@@ -567,13 +568,39 @@ export default {
             flex: 0 0 40px;
             width: 40px;
             height: 40px;
-            padding: 0 10px 10px 20px;
+            padding: 0 10px 0 20px;
             img{
                 width: 100%;
                 height: 100%;
                 border-radius: 50%;
             }
-
+        }
+        .song-desc{
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 20px;
+            .song-name{
+                font-size: $font-size-medium;
+                color: $color-text;
+                height: 20px;
+            }
+            .singer-name{
+                font-size: $font-size-small;
+                color: $color-text-d;
+                height: 20px;
+            }
+        }
+        .control{
+            flex: 0 0 40px;
+            width: 40px;
+            height: 40px;
+            font-size: 30px;
+            color: $color-theme-d;
+            display: flex;
+            align-items: center;
+            
         }
     }
 }
