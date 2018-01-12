@@ -80,14 +80,16 @@
         <transition name="mini">
             <div class="mini-wrapper" v-show="!fullScreen" @click="openPlayer">
                 <div class="icon">
-                    <img :src="currentSong.image" />
+                    <div ref="miniImageWrapper">
+                        <img ref="miniImage" :src="currentSong.image" :class="playClass"/>
+                    </div>
                 </div>
                 <div class="song-desc">
                     <h1 class="song-name">{{currentSong.name}}</h1>
                     <span class="singer-name">{{currentSong.singer}}</span>
                 </div>
                 <div class="control">
-                    <i class="icon-playlist"></i>
+                    <i :class="miniPlayIcon" @click.stop="togglePlaying"></i>
                 </div>
                 <div class="control">
                     <i class="icon-playlist"></i>
@@ -144,6 +146,11 @@ export default {
     playIcon () {
       let icon = '';
       icon = this.playing ? 'icon-pause' : 'icon-play';
+      return icon;
+    },
+    miniPlayIcon () {
+      let icon = '';
+      icon = this.playing ? 'icon-pause-mini' : 'icon-play-mini';
       return icon;
     },
     percent () {
@@ -355,9 +362,10 @@ export default {
     playing (newPlaying) {
       let audio = this.$refs.audio;
       newPlaying ? audio.play() : audio.pause();
-      this.playClass = newPlaying ? 'play' : '';
+      this.playClass = newPlaying ? 'play' : 'play stop';
       if (!newPlaying) {
-        this._syncWrapperTransform('imageWrapper', 'image')
+        this._syncWrapperTransform('imageWrapper', 'image');
+        // this._syncWrapperTransform('miniImageWrapper', 'miniImage')
       }
     }
   }
@@ -573,6 +581,12 @@ export default {
                 width: 100%;
                 height: 100%;
                 border-radius: 50%;
+                &.play{
+                    animation: rotate 20s linear infinite;
+                }
+                &.stop{
+                    animation-play-state: paused;
+                }
             }
         }
         .song-desc{
