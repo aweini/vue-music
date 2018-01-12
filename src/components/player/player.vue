@@ -364,7 +364,7 @@ export default {
       newPlaying ? audio.play() : audio.pause();
       this.playClass = newPlaying ? 'play' : 'play stop';
       if (!newPlaying) {
-        this._syncWrapperTransform('imageWrapper', 'image');
+        // this._syncWrapperTransform('imageWrapper', 'image');
         // this._syncWrapperTransform('miniImageWrapper', 'miniImage')
       }
     }
