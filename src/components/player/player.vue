@@ -458,6 +458,9 @@ export default {
                         .play{
                             animation: rotate 20s linear infinite;
                         }
+                        .stop{
+                            animation-play-state: paused;
+                        }
                     }
                 }
                 .playingLyric{
