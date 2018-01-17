@@ -54,7 +54,7 @@
         // 计算percent
         let percent = this._getPercent();
         // console.log(['touchend', percent]);
-        this.$emit('progressChanging', percent);
+        // this.$emit('progressChanging', percent);
         this.$emit('progressChange', percent);
       },
       progressClick (e) {

@@ -89,7 +89,9 @@
                     <span class="singer-name">{{currentSong.singer}}</span>
                 </div>
                 <div class="control">
-                    <i :class="miniPlayIcon" @click.stop="togglePlaying"></i>
+                    <progress-circle :percent="percent">
+                        <i :class="miniPlayIcon" class="control-btn" @click.stop="togglePlaying"></i>
+                    </progress-circle>
                 </div>
                 <div class="control">
                     <i class="icon-playlist"></i>
@@ -104,12 +106,13 @@
 // 不写export 组件也可使用
 import {mapGetters, mapMutations} from 'vuex';
 import {playerMixin} from '@common/js/mixin';
-import progressBar from '@base/progress-bar/progress-bar';
+import ProgressBar from '@base/progress-bar/progress-bar';
 import {playMode} from '@common/js/config';
 import animations from 'create-keyframe-animation';
 import {prefixStyle} from '@common/js/dom';
 import Lyric from 'lyric-parser';
-import scroll from '@base/scroll/scroll';
+import Scroll from '@base/scroll/scroll';
+import ProgressCircle from '@base/progress-circle/progress-circle';
 
 const transform = prefixStyle('transform');
 // const trasitionDuration = prefixStyle('transitionDuration');
@@ -128,8 +131,9 @@ export default {
     }
   },
   components: {
-    progressBar,
-    scroll
+    ProgressBar,
+    Scroll,
+    ProgressCircle
   },
   computed: {
     durantionTime () {
@@ -610,14 +614,21 @@ export default {
             }
         }
         .control{
-            flex: 0 0 40px;
-            width: 40px;
-            height: 40px;
-            font-size: 30px;
+            flex: 0 0 30px;
+            width: 30px;
+            height: 30px;
+            font-size: 32px;
             color: $color-theme-d;
-            display: flex;
-            align-items: center;
-            
+           // display: flex;
+           // align-items: center;
+           // position: relative;
+            padding: 0 10px;
+            text-align: center;
+            .control-btn{
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
         }
     }
 }
