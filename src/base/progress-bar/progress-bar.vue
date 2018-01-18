@@ -6,7 +6,7 @@
     <div class="progress-btn" ref="progressBtn" 
         @touchstart.prevent="progressTouchstart" 
         @touchmove.prevent="progressTouchmove" 
-        @touchend="progressTouchend">
+        @touchend.prevent="progressTouchend">
     </div>
   </div>
 </template>
@@ -39,7 +39,6 @@
         }
         this.touch.deltaX = e.touches[0].clientX - this.touch.startX;
         let progressWidth = Math.min(this.$refs.progressBar.clientWidth - progressBtnWidth, Math.max(0, this.touch.left + this.touch.deltaX));
-        console.log(['progressWidth', progressWidth]);
         this._offset(progressWidth);
         // 不能改变props传过来的percent
         let percent = this._getPercent();
@@ -72,7 +71,9 @@
         let progressWidth = this.$refs.progress.clientWidth;
         let realProgressBarWidth = this.$refs.progressBar.clientWidth - progressBtnWidth;
         let percent = progressWidth / realProgressBarWidth;
-        // console.log(['_getPercent', percent]);
+        console.log(['progressWidth', progressWidth]);
+        console.log(['realProgressBarWidth', realProgressBarWidth]);
+        console.log(['_getPercent', percent]);
         return percent;
       }
     },
@@ -80,11 +81,13 @@
       percent (newPercent) {
         // console.log(['percent', this.percent]);
         // console.log(['newPercent', newPercent]);
-        let width = this.$refs.progressBar.clientWidth - progressBtnWidth;
-        let progressWidth = width * newPercent;
-        // console.log(['newPercent', newPercent])
-        // console.log(['progressWidth', progressWidth]);
-        this._offset(progressWidth);
+        if (newPercent >= 0 && !this.touch.initiated) {
+          let width = this.$refs.progressBar.clientWidth - progressBtnWidth;
+          let progressWidth = width * newPercent;
+          // console.log(['newPercent', newPercent])
+          // console.log(['progressWidth', progressWidth]);
+          this._offset(progressWidth);
+        }
       }
     }
   }
@@ -111,6 +114,7 @@
   .progress-btn{
     position: absolute;
     top: 7px;
+    left: 0;
     width: 16px;
     height: 16px;
     border-radius: 16px;
