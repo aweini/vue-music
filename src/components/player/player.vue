@@ -379,6 +379,21 @@ export default {
 @import 'src/common/style/variable';
 @import 'src/common/style/mixin';
 .player{
+    .normal-enter-active, .normal-leave-active{
+        transition: all 0.4s;
+        .top, .bottom{
+            transition: all 0.4s;
+        }
+    }
+    .normal-enter, .normal-leave-to{
+        opacity: 0;
+        .top{
+            transform: translate3d(0, -100px, 0);
+        }
+        .bottom{
+            transform: translate3d(0, 100px, 0);
+        }
+    }
     .normal-player{
         position: fixed;
         top: 0;
@@ -560,6 +575,7 @@ export default {
             }
             }
         }
+        
         @keyframes rotate{
             0% {
                 transform: rotate(0);
