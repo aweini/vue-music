@@ -20,3 +20,13 @@ function findIndex (list, currentSong) {
     return item.id === currentSong.id
   });
 }
+
+export const randomPlay = function ({commit, state}, {list}) {
+  commit(types.SET_MODE, playMode.random)
+  commit(types.SET_SEQUENCE_LIST, list)
+  let randomList = shuffle(state.sequenceList);
+  commit(types.SET_PLAY_LIST, randomList);
+  commit(types.SET_CURRENT_INDEX, 0);
+  commit(types.SET_PLAYING_STATE, true);
+  commit(types.SET_FULL_SCREEN, true);
+}

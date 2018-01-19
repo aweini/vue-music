@@ -7,6 +7,13 @@
     {{title}}
     </h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <div class="play-random-wrapper">
+        <div class="play-random" ref="randomPlay" @click="randomPlay">
+          <i class="icon-play"></i>
+          <span>随机播放全部</span>
+        </div>
+      </div>
+      <div class="filter"></div>
     </div>
     <div class="bg-layer" ref="layer"></div>
     <scroll class="list" :data="songs" ref="list" :listen-scroll="listenScroll"
@@ -23,10 +30,12 @@
   import scroll from '@base/scroll/scroll';
   import {prefixStyle} from '@common/js/dom';
   import {mapActions} from 'vuex';
+  import {playerMixin} from '@common/js/mixin';
   const RESERVED_HEIGHT = 40;
   const transform = prefixStyle('transform');
   const backdrop = prefixStyle('backdrop');
   export default{
+    mixins: [playerMixin],
     components: {
       songList,
       scroll
@@ -68,8 +77,12 @@
           index
         })
       },
+      randomPlay () {
+        this.randomPlay(this.songs);
+      },
       ...mapActions([
-        'selectPlay'
+        'selectPlay',
+        'randomPlay'
       ])
     },
     created () {
@@ -156,6 +169,34 @@
         padding-top: 70%;
         transform-origin: top;
         background-size: cover;
+        .play-random-wrapper{
+          position: absolute;
+          width: 100%;
+          bottom: 20px;
+          z-index: 50;
+          .play-random{
+            width: 36%;
+            margin: 0 auto;
+            border: 1px solid $color-theme;
+            border-radius: 100px;
+            color: $color-theme;
+            text-align: center;
+            padding: 7px 0;
+            font-size: $font-size-small;
+            .icon-play{
+              font-size: $font-size-medium-x;
+              vertical-align: middle;
+            }
+          }
+        }
+        .filter{
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(7, 17, 27, 0.4);
+        }
     }
     .bg-layer{
       position: relative;
