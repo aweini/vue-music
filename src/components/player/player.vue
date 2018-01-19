@@ -358,7 +358,10 @@ export default {
     })
   },
   watch: {
-    currentSong (newSong) {
+    currentSong (newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return;
+      }
       this.$refs.audio.src = newSong.url;
       this.$refs.audio.play();
       this._getLyric();

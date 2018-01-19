@@ -26,8 +26,14 @@ export const playerMixin = {
       } else {
         list = this.sequenceList;
       }
-      this.setPlayList(list);
       this.resetCurrentIndex(list);
+      let theCurrentSong = Object.assign({}, this.currentSong);
+      console.log(['resetCurrentIndex', theCurrentSong]);
+      this.setPlayList(list);
+      let theCurrentSong2 = Object.assign({}, this.currentSong);
+      console.log(['resetCurrentIndex', theCurrentSong2]);
+      // 当设置最新index的时候playlist还是老的 curentsong会变
+      // 当设置新的playlist的时候  playlist和index都是最新的 currentsong会变 但play.vue里监听currentsong时只监听到最后的这个，好像有延迟
     },
     resetCurrentIndex (list) {
       // list.forEach((item, index) => {
@@ -42,7 +48,7 @@ export const playerMixin = {
     },
     ...mapMutations({
       setMode: 'SET_MODE',
-      setPlayList: 'SET_PLAYLIST',
+      setPlayList: 'SET_PLAY_LIST',
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayingState: 'SET_PLAYING_STATE'
     })
