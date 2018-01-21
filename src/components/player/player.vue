@@ -37,8 +37,8 @@
                          <!--在v-if=currentLyric外面加一层lyric-wrapper 是保证scroll的第一个子元素存在-->
                         <div class="lyric-wrapper">
                             <div v-if="currentLyric">
-                                <p ref="lyricLine" class="lyric-txt" v-for="(item, index) in currentLyric.lines" :class="{'current-txt':index===currentLineNum}">
-                                    {{item.txt}}
+                                <p ref="lyricLine" class="lyric-txt" v-for="(item, index) in currentLyric.lines" :class="{'current-txt':index === currentLineNum}">
+                                    {{item.txt}}--{{index}}--{{currentLineNum}}
                                 </p>
                             </div>
                         </div>
@@ -238,12 +238,18 @@ export default {
       // this.percent = percent; 不能改变计算属性
       // console.log(['changeProgress', percent]);
       this.currentTime = this.durantionTime * percent;
+      if (this.currentLyric) {
+        this.currentLyric.seek(this.currentTime * 1000);
+      }
       // console.log(['currentTime', this.currentTime]);
       // console.log(['this.percent', this.percent]);
     },
     progressChange (percent) {
       this.currentTime = this.durantionTime * percent;
       this.$refs.audio.currentTime = this.currentTime;
+      if (this.currentLyric) {
+        this.currentLyric.seek(this.currentTime * 1000);
+      }
       if (!this.playing) {
         this.togglePlaying();
       }
@@ -288,10 +294,18 @@ export default {
       })
     },
     _handleLyric ({lineNum, txt}) {
+      console.log(['_handleLyric lineNum', lineNum]);
+      console.log(['_handleLyric txt', txt]);
+      if (!this.$refs.lyricLine) {
+        return false;
+      }
       this.currentLineNum = lineNum;
+      console.log(['_handleLyric txt', this.currentLineNum]);
       if (lineNum > 5) {
         let p = this.$refs.lyricLine[lineNum - 5];
         this.$refs.lyricList.scrollToElement(p, 1000)
+      } else {
+        this.$refs.lyricList.scrollTo(0, 0, 1000)
       }
       this.playingLyric = txt;
     },
