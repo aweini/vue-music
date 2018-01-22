@@ -63,6 +63,15 @@
         let percent = this._getPercent();
         this.$emit('progressChange', percent);
       },
+      setProgressOffset (percent) {
+        if (percent >= 0 && !this.touch.initiated) {
+          let width = this.$refs.progressBar.clientWidth - progressBtnWidth;
+          let progressWidth = width * percent;
+          // console.log(['newPercent', newPercent])
+          // console.log(['progressWidth', progressWidth]);
+          this._offset(progressWidth);
+        }
+      },
       _offset (offsetWidth) {
         this.$refs.progressBtn.style[transform] = `translate(${offsetWidth}px, 0)`;
         this.$refs.progress.style.width = `${offsetWidth}px`;
@@ -81,13 +90,7 @@
       percent (newPercent) {
         // console.log(['percent', this.percent]);
         // console.log(['newPercent', newPercent]);
-        if (newPercent >= 0 && !this.touch.initiated) {
-          let width = this.$refs.progressBar.clientWidth - progressBtnWidth;
-          let progressWidth = width * newPercent;
-          // console.log(['newPercent', newPercent])
-          // console.log(['progressWidth', progressWidth]);
-          this._offset(progressWidth);
-        }
+        this.setProgressOffset(newPercent);
       }
     }
   }

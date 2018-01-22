@@ -52,7 +52,7 @@
                     <div class="progress-wrapper">
                         <span class="time">{{format(currentTime)}}</span>
                         <div class="progress-bar-wrapper">
-                            <progress-bar :percent="percent" @progressChanging="progressChanging" @progressChange="progressChange"></progress-bar>
+                            <progress-bar ref="progressBar" :percent="percent" @progressChanging="progressChanging" @progressChange="progressChange"></progress-bar>
                         </div>
                         <span class="time">{{format(durantionTime)}}</span>
                     </div>
@@ -294,13 +294,13 @@ export default {
       })
     },
     _handleLyric ({lineNum, txt}) {
-      console.log(['_handleLyric lineNum', lineNum]);
-      console.log(['_handleLyric txt', txt]);
+      // console.log(['_handleLyric lineNum', lineNum]);
+      // console.log(['_handleLyric txt', txt]);
       if (!this.$refs.lyricLine) {
         return false;
       }
       this.currentLineNum = lineNum;
-      console.log(['_handleLyric txt', this.currentLineNum]);
+      // console.log(['_handleLyric txt', this.currentLineNum]);
       if (lineNum > 5) {
         let p = this.$refs.lyricLine[lineNum - 5];
         this.$refs.lyricList.scrollToElement(p, 1000)
@@ -376,6 +376,14 @@ export default {
       if (newSong.id === oldSong.id) {
         return;
       }
+
+      if (this.currentLyric) {
+        this.currentLyric.stop();
+        this.currentLyric = null;
+        this.currentTime = 0;
+        this.playingLyric = '';
+        this.currentLineNum = 0;
+      }
       this.$refs.audio.src = newSong.url;
       this.$refs.audio.play();
       this._getLyric();
@@ -387,6 +395,14 @@ export default {
       if (!newPlaying) {
         // this._syncWrapperTransform('imageWrapper', 'image');
         // this._syncWrapperTransform('miniImageWrapper', 'miniImage')
+      }
+    },
+    fullScreen (newVal) {
+      if (newVal) {
+        setTimeout(() => {
+          this.$refs.lyricList.refresh();
+          this.$refs.progressBar.setProgressOffset(this.percent);
+        }, 20)
       }
     }
   }
