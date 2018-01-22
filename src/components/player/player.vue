@@ -98,7 +98,7 @@
                 </div>
             </div>
         </transition>
-    <audio ref="audio" @timeupdate="updateTime" @ended="end"></audio>
+    <audio ref="audio" @play="ready" @timeupdate="updateTime" @ended="end"></audio>
   </div>
   
 </template>
@@ -233,6 +233,9 @@ export default {
       s = s < 10 ? `0${s}` : s;
       time = `${m}:${s}`;
       return time;
+    },
+    ready () {
+      console.log('ready..............');
     },
     progressChanging (percent) {
       // this.percent = percent; 不能改变计算属性
