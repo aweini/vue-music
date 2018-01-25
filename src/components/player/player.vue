@@ -38,10 +38,14 @@
                         <div class="lyric-wrapper">
                             <div v-if="currentLyric">
                                 <p ref="lyricLine" class="lyric-txt" v-for="(item, index) in currentLyric.lines" :class="{'current-txt':index === currentLineNum}">
-                                    {{item.txt}}--{{index}}--{{currentLineNum}}
+                                    {{item.txt}}
                                 </p>
                             </div>
+                            <div class="pure-music" v-show="isPureMusic">
+                                {{pureMusicLyric}}
+                            </div>
                         </div>
+                       
                     </scroll>
                 </div>
                 <div class="bottom">
@@ -98,7 +102,13 @@
                 </div>
             </div>
         </transition>
-    <audio ref="audio" @play="ready" @timeupdate="updateTime" @ended="end"></audio>
+    <audio ref="audio" 
+        @play="ready" 
+        @pause="paused" 
+        @timeupdate="updateTime" 
+        @ended="end"
+        @error="error"
+        ></audio>
   </div>
   
 </template>
@@ -116,18 +126,22 @@ import ProgressCircle from '@base/progress-circle/progress-circle';
 
 const transform = prefixStyle('transform');
 // const trasitionDuration = prefixStyle('transitionDuration');
-
+const timeExp = /\[(\d{2}):(\d{2}):(\d{2})]/g;
 export default {
   mixins: [playerMixin],
   data () {
     return {
+      songReady: false,
       currentTime: 0,
       playClass: 'play',
       currentLyric: null,
       currentLineNum: 0,
       playingLyric: '',
       currentShow: 'cd',
-      touch: {}
+      touch: {},
+      canLyricPlay: false,
+      isPureMusic: false,
+      pureMusicLyric: ''
     }
   },
   components: {
@@ -209,19 +223,70 @@ export default {
     closePlayer () {
       this.setFullScreen(false);
     },
+    ready () {
+      setTimeout(() => {
+        this.songReady = true;
+      }, 500);
+      this.canLyricPlay = true;
+      if (this.currentLyric && !this.isPureMusic) {
+        this.currentLyric.seek(this.currentTime * 1000)
+      }
+    },
+    error () {
+      console.log('error.......');
+      this.songReady = true;
+    },
+    paused () {
+      this.setPlayingState(false);
+      if (this.currentLyric) {
+        this.currentLyric.stop();
+      }
+    },
     togglePlaying () {
       this.setPlayingState(!this.playing);
     },
+    _loop () {
+      this.currentTime = 0;
+      this.$refs.audio.play();
+      this.setPlayingState(true);
+      if (this.currentLyric) {
+        this.currentLyric.seek(0);
+      }
+    },
     prev () {
-      console.log(['this.currentIndex', this.currentIndex]);
-      let newCurrentIndex = this.currentIndex;
-      newCurrentIndex = newCurrentIndex - 1;
-      this.setCurrentIndex(newCurrentIndex);
+      if (!this.songReady) {
+        return;
+      }
+      if (this.playList.length === 1) {
+        this._loop();
+      } else {
+        console.log(['this.currentIndex', this.currentIndex]);
+        let newCurrentIndex = this.currentIndex - 1;
+        if (newCurrentIndex === -1) {
+          newCurrentIndex = this.playList.length - 1;
+        }
+        this.setCurrentIndex(newCurrentIndex);
+        if (!this.playing) {
+          this.togglePlaying();
+        }
+      }
     },
     next () {
-      let newCurrentIndex = this.currentIndex;
-      newCurrentIndex = newCurrentIndex + 1;
-      this.setCurrentIndex(newCurrentIndex);
+      if (!this.songReady) {
+        return;
+      }
+      if (this.playList.length === 1) {
+        this._loop();
+      } else {
+        let newCurrentIndex = this.currentIndex + 1;
+        if (newCurrentIndex === this.playList.length) {
+          newCurrentIndex = 0;
+        }
+        this.setCurrentIndex(newCurrentIndex);
+        if (!this.playing) {
+          this.togglePlaying();
+        }
+      }
     },
     updateTime (e) {
       this.currentTime = e.target.currentTime;
@@ -233,9 +298,6 @@ export default {
       s = s < 10 ? `0${s}` : s;
       time = `${m}:${s}`;
       return time;
-    },
-    ready () {
-      console.log('ready..............');
     },
     progressChanging (percent) {
       // this.percent = percent; 不能改变计算属性
@@ -289,9 +351,23 @@ export default {
     },
     _getLyric () {
       this.currentSong.getLyric().then((lyric) => {
+        console.log(['currentSong.lyric....', this.currentSong.lyric]);
+        console.log(['lyric....', lyric]);
+        if (this.currentSong.lyric !== lyric) {
+          return;
+        }
         this.currentLyric = new Lyric(lyric, this._handleLyric);
         console.log(['lyric', this.currentLyric]);
-        this.currentLyric.seek(this.currentTime * 1000);
+        this.isPureMusic = !this.currentLyric.lines.length;
+        console.log(['lyric....lyric', this.currentSong.lyric !== lyric]);
+        if (this.isPureMusic) {
+          this.pureMusicLyric = this.currentLyric.lrc.replace(timeExp, '').trim();
+          this.playingLyric = this.pureMusicLyric;
+        } else {
+          if (this.playing && this.canLyricPlay) {
+            this.currentLyric.seek(this.currentTime * 1000);
+          }
+        }
       }).catch(() => {
         this.currentLyric = null;
       })
@@ -379,7 +455,7 @@ export default {
       if (newSong.id === oldSong.id) {
         return;
       }
-
+      this.canLyricPlay = false;
       if (this.currentLyric) {
         this.currentLyric.stop();
         this.currentLyric = null;
@@ -392,13 +468,18 @@ export default {
       this._getLyric();
     },
     playing (newPlaying) {
-      let audio = this.$refs.audio;
-      newPlaying ? audio.play() : audio.pause();
-      this.playClass = newPlaying ? 'play' : 'play stop';
-      if (!newPlaying) {
-        // this._syncWrapperTransform('imageWrapper', 'image');
-        // this._syncWrapperTransform('miniImageWrapper', 'miniImage')
+      if (!this.songReady) {
+        return;
       }
+      let audio = this.$refs.audio;
+      this.$nextTick(() => {
+        newPlaying ? audio.play() : audio.pause();
+      })
+      this.playClass = newPlaying ? 'play' : 'play stop';
+    //   if (!newPlaying) {
+    //     // this._syncWrapperTransform('imageWrapper', 'image');
+    //     // this._syncWrapperTransform('miniImageWrapper', 'miniImage')
+    //   }
     },
     fullScreen (newVal) {
       if (newVal) {
@@ -545,6 +626,12 @@ export default {
                     &.current-txt{
                         color: $color-text;
                     }
+                }
+                .pure-music{
+                    padding-top: 50%;
+                    line-height: 32px;
+                    color: $color-text-l;
+                    font-size: $font-size-medium;
                 }
               }
             }
