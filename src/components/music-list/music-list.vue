@@ -8,7 +8,7 @@
     </h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="play-random-wrapper">
-        <div class="play-random" ref="randomPlay" @click="randomPlay">
+        <div class="play-random" ref="randomPlay" @click="randomPlayFunc">
           <i class="icon-play"></i>
           <span>随机播放全部</span>
         </div>
@@ -77,8 +77,11 @@
           index
         })
       },
-      randomPlay () {
-        this.randomPlay(this.songs);
+      randomPlayFunc () {
+        // 不要和action的randomPlay重名了否则无法区分this.randomPlay是谁
+        this.randomPlay({
+          list: this.songs
+        });
       },
       ...mapActions([
         'selectPlay',

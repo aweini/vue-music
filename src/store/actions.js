@@ -24,6 +24,8 @@ function findIndex (list, currentSong) {
 export const randomPlay = function ({commit, state}, {list}) {
   commit(types.SET_MODE, playMode.random)
   commit(types.SET_SEQUENCE_LIST, list)
+  console.log(['action list', list]);
+  console.log(['action state.sequenceList', state.sequenceList]);
   let randomList = shuffle(state.sequenceList);
   commit(types.SET_PLAY_LIST, randomList);
   commit(types.SET_CURRENT_INDEX, 0);
