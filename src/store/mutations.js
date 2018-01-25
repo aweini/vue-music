@@ -4,7 +4,9 @@ const mutations = {
     state.singer = singer;
   },
   [types.SET_PLAYING_STATE] (state, flag) {
+    console.log(['types.SET_PLAYING_STATE', state.playing]);
     state.playing = flag;
+    console.log(['types.SET_PLAYING_STATE', state.playing]);
   },
   [types.SET_FULL_SCREEN] (state, flag) {
     state.fullScreen = flag;

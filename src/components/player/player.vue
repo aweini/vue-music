@@ -237,6 +237,7 @@ export default {
       this.songReady = true;
     },
     paused () {
+      console.log('播放结束的时候会自动执行 paused......... 导致playing状态为false');
       this.setPlayingState(false);
       if (this.currentLyric) {
         this.currentLyric.stop();
@@ -248,6 +249,8 @@ export default {
     _loop () {
       this.currentTime = 0;
       this.$refs.audio.play();
+      let playtest = this.playing;
+      console.log(['_loop playing', playtest]);
       this.setPlayingState(true);
       if (this.currentLyric) {
         this.currentLyric.seek(0);
@@ -266,6 +269,8 @@ export default {
           newCurrentIndex = this.playList.length - 1;
         }
         this.setCurrentIndex(newCurrentIndex);
+        let playtest = this.playing;
+        console.log(['prev playing', playtest]);
         if (!this.playing) {
           this.togglePlaying();
         }
@@ -283,6 +288,8 @@ export default {
           newCurrentIndex = 0;
         }
         this.setCurrentIndex(newCurrentIndex);
+        let playtest = this.playing;
+        console.log(['next playing', playtest]);
         if (!this.playing) {
           this.togglePlaying();
         }
@@ -321,16 +328,9 @@ export default {
     },
     end () {
       if (this.mode === playMode.loop) {
-        this.currentTime = 0;
-        this.$refs.audio.currentTime = this.currentTime;
-        this.$refs.audio.play();
-        if (!this.playing) {
-          this.setPlayingState(true);
-        }
+        this._loop();
       } else {
-        let newCurrentIndex = this.currentIndex;
-        newCurrentIndex = newCurrentIndex + 1;
-        this.setCurrentIndex(newCurrentIndex);
+        this.next();
       }
     },
     _getPosAndScale () {
@@ -468,6 +468,7 @@ export default {
       this._getLyric();
     },
     playing (newPlaying) {
+      console.log(['watch playing', newPlaying]);
       if (!this.songReady) {
         return;
       }

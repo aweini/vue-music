@@ -8,5 +8,5 @@ const state = {
   mode: playMode.sequence,
   currentIndex: -1
 }
-
+console.log(['state', state.playing]);
 export default state;
