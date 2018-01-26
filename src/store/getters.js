@@ -9,3 +9,4 @@ export const currentSong = state => {
   console.log('currentSong要变啦啦啦啦啦啦啦啦');
   return state.playList[state.currentIndex] || {};
 };
+export const currentDisc = state => state.currentDisc;

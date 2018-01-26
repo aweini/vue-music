@@ -14,7 +14,7 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li v-for="item in discList" class="item">
+            <li v-for="item in discList" class="item" @click="selectDisc(item)">
               <img v-lazy="item.imgurl" class="icon" />
               <div class="text">
                 <h2 class="name">{{item.creator.name}}</h2>
@@ -28,7 +28,7 @@
         </div>
       </div>
     </scroll>
-    
+    <router-view></router-view>
   </div>
 </template>
 <script>
@@ -37,6 +37,7 @@
   import slider from '@base/slider/slider'
   import scroll from '@base/scroll/scroll'
   import loading from '@base/loading/loading'
+  import { mapMutations } from 'vuex'
   export default {
     data () {
       return {
@@ -69,7 +70,16 @@
             console.log(this.discList)
           }
         })
-      }
+      },
+      selectDisc (disc) {
+        this.setCurrentDisc(disc)
+        this.$router.push({
+          path: `/recommend/${disc.dissid}`
+        });
+      },
+      ...mapMutations({
+        setCurrentDisc: 'SET_CURRENT_DISC'
+      })
     }
   }
 </script>
