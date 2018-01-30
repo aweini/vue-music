@@ -1,7 +1,7 @@
 <template>
     <div class='m-header'>
         <div class='icon'></div>
-        <div class='name'>Chicken Music</div>
+        <div class='name'>Cat Music</div>
         <div class="mine">
             <i class='icon-mine'></i>
         </div>
@@ -23,12 +23,14 @@ export default{
     color: $color-theme;
     .icon{
         display: inline-block;
-        width: 30px;
-        height: 32px;
-        @include bg-image('logo');
-        background-size: 30px 32px;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        // background-image: url('cat.jpeg'); 都行
+        background-image: url('./cat.jpeg');
+        background-size: 40px 40px;
         vertical-align: top;
-        margin-top: 6px;
+        margin-top: 4px;
         margin-right:9px;
     }
     .name{
