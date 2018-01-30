@@ -19,7 +19,7 @@
     <scroll class="list" :data="songs" ref="list" :listen-scroll="listenScroll"
     :probe-type="probeType" @scroll="scroll">
       <div class="song-list-wrapper">
-        <song-list :songs="songs" @select="selectItem">
+        <song-list :songs="songs" @select="selectItem" :rank="rank">
         </song-list>
       </div>
     </scroll>
@@ -41,7 +41,7 @@
       scroll
     },
     props: {
-      title: {
+      'title': {
         type: String,
         default: ''
       },
@@ -52,6 +52,10 @@
       songs: {
         type: Array,
         default: []
+      },
+      rank: {
+        type: Boolean,
+        default: false
       }
     },
     data () {
@@ -121,9 +125,11 @@
           zIndex = 10;
           this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`;
           this.$refs.bgImage.style.paddingTop = '0';
+          this.$refs.randomPlay.style.display = 'none';
         } else {
           this.$refs.bgImage.style.height = 0;
           this.$refs.bgImage.style.paddingTop = '70%';
+          this.$refs.randomPlay.style.display = '';
         }
         this.$refs.bgImage.style.zIndex = zIndex;
         console.log(['scale', scale])

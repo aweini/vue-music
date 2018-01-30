@@ -10,3 +10,4 @@ export const currentSong = state => {
   return state.playList[state.currentIndex] || {};
 };
 export const currentDisc = state => state.currentDisc;
+export const topList = state => state.topList;
