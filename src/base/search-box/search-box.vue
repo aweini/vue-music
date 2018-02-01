@@ -6,7 +6,14 @@
   </div>
 </template>
 <script>
-    
+  export default {
+    props: {
+      query: {
+        type: String,
+        default: ''
+      }
+    }
+  }
 </script>
 <style lang="scss">
 @import 'src/common/style/variable';
