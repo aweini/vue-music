@@ -14,7 +14,7 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li v-for="item in discList" class="item" @click="selectDisc(item)">
+            <li v-for="(item, index) in discList" class="item" @click="selectDisc(item)" :key="index">
               <img v-lazy="item.imgurl" class="icon" />
               <div class="text">
                 <h2 class="name">{{item.creator.name}}</h2>

@@ -77,3 +77,17 @@ export const playListMixin = {
     }
   }
 }
+
+export const searchMixin = {
+  data () {
+    return {
+      query: ''
+    }
+  },
+  methods: {
+    changeQuery (query) {
+      this.query = query;
+      console.log(this.query);
+    }
+  }
+}

@@ -1,7 +1,7 @@
 <template>
   <div class="search-wrapper">
     <div class="search-box-wrapper">
-      <search-box :query="query"></search-box>
+      <search-box  @query="changeQuery"></search-box>
     </div>
     <div class="shortcut-wrapper">
       <scroll>
@@ -38,37 +38,40 @@
   </div>
 </template>
 <script>
-  import searchBox from '@base/search-box/search-box';
-  import scroll from '@base/scroll/scroll';
-  export default {
-    data () {
-      return {
-        query: ''
-      }
-    },
-    components: {
-      searchBox,
-      scroll
-    }
+import searchBox from '@base/search-box/search-box';
+import scroll from '@base/scroll/scroll';
+import {searchMixin} from '@common/js/mixin';
+export default {
+  mixins: [searchMixin],
+  data () {
+    return {
+    };
+  },
+  components: {
+    searchBox,
+    scroll
+  },
+  methods: {
   }
+};
 </script>
 <style lang="scss">
 @import 'src/common/style/variable';
 @import 'src/common/style/mixin';
-.search-wrapper{
+.search-wrapper {
   margin: 20px;
-  .shortcut-wrapper{
+  .shortcut-wrapper {
     margin-top: 30px;
-    .hot-search{
-      h1{
+    .hot-search {
+      h1 {
         font-size: $font-size-medium;
         color: $color-text-l;
         margin-bottom: 20px;
       }
-      ul{
+      ul {
         display: flex;
         flex-wrap: wrap;
-        li{
+        li {
           padding: 5px 10px;
           margin: 0 20px 10px 0;
           border-radius: 6px;
@@ -78,26 +81,25 @@
         }
       }
     }
-    .search-history{
+    .search-history {
       margin-top: 30px;
-      .title{
+      .title {
         display: flex;
         align-items: center;
         color: $color-text-l;
         margin-bottom: 20px;
         font-size: $font-size-medium;
-        .text{
+        .text {
           flex: 1;
         }
-        .clear{
+        .clear {
           @include extend-click();
-          .icon-clear{
+          .icon-clear {
             font-size: $font-size-medium;
             color: $color-text-d;
           }
         }
       }
-      
     }
   }
 }
