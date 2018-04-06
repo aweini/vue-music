@@ -14,14 +14,20 @@ export default {
       query: ''
     };
   },
+  created () {
+    let timer;
+    this.$watch('query', (newVal) => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(() => {
+        this.$emit('query', newVal);
+      }, 200)
+    })
+  },
   methods: {
   },
   watch: {
-    query (newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$emit('query', newVal);
-      }
-    }
   }
 };
 </script>

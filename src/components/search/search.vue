@@ -52,6 +52,9 @@ export default {
     scroll
   },
   methods: {
+    changeQuery (query) {
+      console.log(query);
+    }
   }
 };
 </script>
